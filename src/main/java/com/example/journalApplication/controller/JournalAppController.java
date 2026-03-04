@@ -1,42 +1,48 @@
 package com.example.journalApplication.controller;
 
 import com.example.journalApplication.entity.JournalEntry;
+import com.example.journalApplication.service.JournalAppService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @RestController
 @RequestMapping("/journalApp")
 public class JournalAppController {
-Map<Long,JournalEntry> journalEntry = new HashMap<>();
+    @Autowired
+    private JournalAppService journalAppService;
 @PostMapping
 public boolean createEntry(@RequestBody JournalEntry myEntry){
-    journalEntry.put(myEntry.getId(), myEntry);
+    journalAppService.saveEntryToTheDatabase(myEntry);
     return true;
 }
 
 @GetMapping
     public List<JournalEntry> getAllEntries(){
-    return new ArrayList<JournalEntry>(journalEntry.values());
+    return journalAppService.getAllEntries();
 }
 
 @GetMapping("id/{myId}")
-    public JournalEntry getEntryByid(@PathVariable Long myId){
-    return journalEntry.get(myId);
+    public Optional<JournalEntry> getEntryByid(@PathVariable Long myId){
+    return journalAppService.getEntryId(myId);
 }
 
 @DeleteMapping("id/{myId}")
-    public JournalEntry deleteEntryById(@PathVariable Long myId){
-    return journalEntry.remove(myId);
+    public void deleteEntryById(@PathVariable Long myId){
+    journalAppService.deleteEntryById(myId);
 }
 
+
 @PutMapping("id/{myId}")
-    public JournalEntry updateById(@PathVariable Long myId, @RequestBody JournalEntry myjournal)
-{
-    journalEntry.put(myId,myjournal);
-    return journalEntry.get(myId);
+    public JournalEntry updateById(@PathVariable Long myId, @RequestBody JournalEntry myjournal) {
+    JournalEntry oldEntry = journalAppService.getEntryId(myId).orElse(null);
+    if (oldEntry != null && !myjournal.getTitle().isEmpty()) {
+        oldEntry.setTitle(myjournal.getTitle());
+    }
+    if (oldEntry != null && !myjournal.getContent().isEmpty()) {
+    oldEntry.setContent(myjournal.getContent());
+    }
+    return journalAppService.saveEntryToTheDatabase(oldEntry);
 }
 }

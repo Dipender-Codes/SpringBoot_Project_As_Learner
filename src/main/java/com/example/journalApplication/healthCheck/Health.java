@@ -1,4 +1,4 @@
-package com.example.journalApplication;
+package com.example.journalApplication.healthCheck;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
