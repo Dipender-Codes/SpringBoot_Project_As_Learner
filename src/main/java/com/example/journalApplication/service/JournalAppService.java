@@ -5,6 +5,7 @@ import com.example.journalApplication.entity.UserEntry;
 import com.example.journalApplication.repository.JournalAppRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,6 +24,7 @@ public class JournalAppService {
     @Autowired
     private UserService userService;
 
+@Transactional
 public void saveEntryToTheDatabase(JournalEntry journalEntry, String userName){
     UserEntry user= userService.findByUserName(userName);
     JournalEntry saved= journalAppRepository.save(journalEntry);
@@ -42,6 +44,7 @@ public Optional<JournalEntry> getEntryId(ObjectId myId){
     return journalAppRepository.findById(myId);
 }
 
+@Transactional
 public void deleteEntryById(ObjectId myId, String userName)
 {
     UserEntry user = userService.findByUserName(userName);

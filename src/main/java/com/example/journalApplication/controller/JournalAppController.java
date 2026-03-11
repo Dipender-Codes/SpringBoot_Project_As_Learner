@@ -22,6 +22,7 @@ public class JournalAppController {
     @Autowired
     private UserService userService;
 
+
     @PostMapping("/userName")
     public ResponseEntity<JournalEntry> createEntry(@RequestBody JournalEntry myEntry,@PathVariable String userName) {
         try {
