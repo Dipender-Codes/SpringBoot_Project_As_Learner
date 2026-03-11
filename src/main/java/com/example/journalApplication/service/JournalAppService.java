@@ -1,9 +1,10 @@
 package com.example.journalApplication.service;
 
 import com.example.journalApplication.entity.JournalEntry;
+import com.example.journalApplication.entity.UserEntry;
 import com.example.journalApplication.repository.JournalAppRepository;
+import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -19,20 +20,33 @@ public class JournalAppService {
     @Autowired
     private JournalAppRepository journalAppRepository;
 
-public JournalEntry saveEntryToTheDatabase(JournalEntry journalEntry){
-    return journalAppRepository.save(journalEntry);
+    @Autowired
+    private UserService userService;
+
+public void saveEntryToTheDatabase(JournalEntry journalEntry, String userName){
+    UserEntry user= userService.findByUserName(userName);
+    JournalEntry saved= journalAppRepository.save(journalEntry);
+    user.getUserJournals().add(saved);
+    userService.saveEntryToTheDatabase(user);
 }
 
-public List<JournalEntry> getAllEntries(){
+public void saveEntryToTheDatabase(JournalEntry journalEntry){
+        journalAppRepository.save(journalEntry);
+}
+
+    public List<JournalEntry> getAllEntries(){
     return journalAppRepository.findAll();
 }
 
-public Optional<JournalEntry> getEntryId(Long myId){
+public Optional<JournalEntry> getEntryId(ObjectId myId){
     return journalAppRepository.findById(myId);
 }
 
-public void deleteEntryById(Long myId){
-   journalAppRepository.deleteById(myId);
+public void deleteEntryById(ObjectId myId, String userName)
+{
+    UserEntry user = userService.findByUserName(userName);
+    user.getUserJournals().removeIf(x-> x.getId().equals(myId));
+    userService.saveEntryToTheDatabase(user);
+    journalAppRepository.deleteById(myId);
 }
-
 }
